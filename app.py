@@ -134,6 +134,7 @@ if current_step < total_steps:
         QUESTIONS[current_step],
         min_value=0,
         max_value=100,
+        value=st.session_state.get(question_key, 50),
         key=question_key,
     )
 
