@@ -43,19 +43,24 @@ GOOGLE_SCOPE = [
     "https://www.googleapis.com/auth/drive",
 ]
 
+DEFAULT_SLIDER_VALUE = 50
+
 
 # --- Session State -------------------------------------------------------------
 
-if "step" not in st.session_state:
-    st.session_state.step = 0
+def initialize_session_state() -> None:
+    """Ensure the multi-step wizard has sane defaults for every run."""
 
-for idx in range(1, len(QUESTIONS) + 1):
-    st.session_state.setdefault(f"q{idx}", 50)
+    st.session_state.setdefault("step", 0)
+    for idx in range(1, len(QUESTIONS) + 1):
+        st.session_state.setdefault(f"q{idx}", DEFAULT_SLIDER_VALUE)
+    st.session_state.setdefault("client_id", str(uuid.uuid4()))
+    st.session_state.setdefault("submission_in_progress", False)
+    st.session_state.setdefault("submission_success", False)
+    st.session_state.setdefault("submission_error", "")
 
-st.session_state.setdefault("client_id", str(uuid.uuid4()))
-st.session_state.setdefault("submission_in_progress", False)
-st.session_state.setdefault("submission_success", False)
-st.session_state.setdefault("submission_error", "")
+
+initialize_session_state()
 
 
 def post_to_sheets(row: List):
@@ -130,13 +135,16 @@ if current_step < total_steps:
     st.progress((current_step + 1) / total_steps)
     st.subheader(f"Q{current_step + 1}")
     question_key = f"q{current_step + 1}"
-    st.slider(
+
+    current_value = st.session_state[question_key]
+    selected_value = st.slider(
         QUESTIONS[current_step],
         min_value=0,
         max_value=100,
-        value=st.session_state.get(question_key, 50),
+        value=current_value,
         key=question_key,
     )
+    st.session_state[question_key] = selected_value
 
     button_cols = st.columns(2)
     with button_cols[0]:
@@ -145,14 +153,11 @@ if current_step < total_steps:
             st.rerun()
     with button_cols[1]:
         if st.button("次へ"):
-            if st.session_state.get(f"q{current_step + 1}") is None:
-                st.warning("スライダーで値を選択してください。")
-            else:
-                st.session_state.step = current_step + 1
-                st.rerun()
+            st.session_state.step = current_step + 1
+            st.rerun()
 
 else:
-    answers = {f"q{idx}": st.session_state.get(f"q{idx}") for idx in range(1, total_steps + 1)}
+    answers = {f"q{idx}": st.session_state[f"q{idx}"] for idx in range(1, total_steps + 1)}
     vals = [answers[f"q{idx}"] for idx in range(1, total_steps + 1)]
     ready_score = calc_ready(answers)
     adoption_score = answers["q4"]
