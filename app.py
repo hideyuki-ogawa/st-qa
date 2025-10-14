@@ -2,7 +2,7 @@ import json
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List
+from typing import List
 
 import gspread
 import streamlit as st
@@ -52,21 +52,12 @@ def initialize_session_state() -> None:
     """Ensure the multi-step wizard has sane defaults for every run."""
 
     st.session_state.setdefault("step", 0)
-    st.session_state.setdefault(
-        "answers",
-        {f"q{idx}": DEFAULT_SLIDER_VALUE for idx in range(1, len(QUESTIONS) + 1)},
-    )
+    for idx in range(1, len(QUESTIONS) + 1):
+        st.session_state.setdefault(f"q{idx}", DEFAULT_SLIDER_VALUE)
     st.session_state.setdefault("client_id", str(uuid.uuid4()))
     st.session_state.setdefault("submission_in_progress", False)
     st.session_state.setdefault("submission_success", False)
     st.session_state.setdefault("submission_error", "")
-
-
-def get_answers() -> Dict[str, int]:
-    """Helper to return answers in a fixed order (q1..q10)."""
-
-    answers = st.session_state.get("answers", {})
-    return {f"q{idx}": answers.get(f"q{idx}", DEFAULT_SLIDER_VALUE) for idx in range(1, len(QUESTIONS) + 1)}
 
 
 initialize_session_state()
@@ -145,17 +136,15 @@ if current_step < total_steps:
     st.subheader(f"Q{current_step + 1}")
     question_key = f"q{current_step + 1}"
 
-    answers = get_answers()
-    current_value = answers[question_key]
+    current_value = st.session_state[question_key]
     selected_value = st.slider(
         QUESTIONS[current_step],
         min_value=0,
         max_value=100,
         value=current_value,
-        key=f"slider_{question_key}",
+        key=question_key,
     )
-    if selected_value != current_value:
-        st.session_state.answers[question_key] = selected_value
+    st.session_state[question_key] = selected_value
 
     button_cols = st.columns(2)
     with button_cols[0]:
@@ -164,12 +153,11 @@ if current_step < total_steps:
             st.rerun()
     with button_cols[1]:
         if st.button("次へ"):
-            st.session_state.answers[question_key] = selected_value
             st.session_state.step = current_step + 1
             st.rerun()
 
 else:
-    answers = get_answers()
+    answers = {f"q{idx}": st.session_state[f"q{idx}"] for idx in range(1, total_steps + 1)}
     vals = [answers[f"q{idx}"] for idx in range(1, total_steps + 1)]
     ready_score = calc_ready(answers)
     adoption_score = answers["q4"]
