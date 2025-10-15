@@ -36,3 +36,6 @@ Without the Google Sheets secrets the app still works in preview mode, but the s
 ### Google Sheets columns
 Expect a header order like:
 `timestamp,q1..q10,ready_score,adoption_q4,reduction_pct,industry,client_id,user_agent,referrer,notes`
+
+### Live demo
+試す: https://chomoku-ai-test.streamlit.app/
