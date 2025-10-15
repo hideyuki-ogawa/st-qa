@@ -403,12 +403,12 @@ def render_results_step(questions: List[Dict[str, str]]):
     if not can_submit:
         st.warning("Streamlit Secrets に Google Sheets 設定がないため送信できません。ローカル確認のみです。")
 
-    cols = st.columns([1, 1, 1, 1])
+    cols = st.columns([1, 1])
     if cols[0].button("回答を編集する", use_container_width=True):
         st.session_state.step = "questions"
         st.rerun()
 
-    if cols[1].button("回答を送信", disabled=not can_submit, use_container_width=True):
+    if cols[1].button("回答を記録", disabled=not can_submit, use_container_width=True):
         try:
             append_response_to_sheet(build_row_payload(results, answers))
         except Exception as exc:  # pylint: disable=broad-except
@@ -419,9 +419,6 @@ def render_results_step(questions: List[Dict[str, str]]):
             st.session_state.submission_status = "success"
             st.session_state.step = "completed"
             st.rerun()
-
-    if cols[2].button("最初の質問から再開", use_container_width=True):
-        reset_session()
 
 
 def build_row_payload(results: Dict[str, float], answers: Dict[str, int]) -> List:
@@ -452,7 +449,7 @@ def render_completion_step():
     st.header("ご協力ありがとうございました")
     st.write("ご回答を送信しました。今後のサービス向上に活用させていただきます。")
     st.write("データは匿名で集計し、業種別の傾向分析にのみ利用します。")
-    st.link_button("長目サイトを見る", "https://nagame.co.jp", use_container_width=False)
+    st.link_button("長目サイトを見る", "https://www.chomoku.info", use_container_width=False)
     st.button("新しく回答する", on_click=reset_session)
 
 
