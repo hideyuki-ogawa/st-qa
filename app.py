@@ -26,6 +26,18 @@ CATEGORY_ALIASES = {
     "データ活用志向": "データ活用",
     "データ応用意": "データ活用",
 }
+INDUSTRY_OPTIONS = [
+    "製造業",
+    "情報通信業",
+    "流通・小売",
+    "専門サービス・士業",
+    "医療・福祉",
+    "教育・学習支援",
+    "建設・不動産",
+    "飲食・宿泊",
+    "行政・公共",
+    "その他（自由入力）",
+]
 
 
 @st.cache_data(show_spinner=False)
@@ -95,6 +107,15 @@ def ensure_session_defaults(questions: List[Dict[str, str]]) -> None:
     if "client_id" not in st.session_state:
         st.session_state.client_id = str(uuid4())
 
+    if "industry_choice" not in st.session_state:
+        st.session_state.industry_choice = INDUSTRY_OPTIONS[0]
+
+    if "industry_custom" not in st.session_state:
+        st.session_state.industry_custom = ""
+
+    if "industry" not in st.session_state:
+        st.session_state.industry = None
+
     if "answers" not in st.session_state:
         st.session_state.answers = {q["id"]: None for q in questions}
 
@@ -102,7 +123,7 @@ def ensure_session_defaults(questions: List[Dict[str, str]]) -> None:
         st.session_state.current_question = 0
 
     if "step" not in st.session_state:
-        st.session_state.step = "questions"
+        st.session_state.step = "industry"
 
     if "submission_status" not in st.session_state:
         st.session_state.submission_status = None
@@ -110,7 +131,11 @@ def ensure_session_defaults(questions: List[Dict[str, str]]) -> None:
 
 def compute_results(answers: Dict[str, int]) -> Dict[str, float]:
     """Calculate aggregate metrics from the answer set."""
-    numeric_answers = list(answers.values())
+    numeric_answers = [value for value in answers.values() if value is not None]
+    if len(numeric_answers) != len(answers):
+        raise ValueError("Missing answers; cannot compute final results.")
+
+    numeric_answers = [int(value) for value in numeric_answers]
     ai_ready = round(mean(numeric_answers))
     ai_adoption = int(answers.get("q4", 0))
 
@@ -295,18 +320,68 @@ def render_question_step(questions: List[Dict[str, str]]):
             if None in st.session_state.answers.values():
                 st.warning("未回答の質問があります。戻ってすべて回答してください。")
                 return
-            st.session_state.step = "results"
+        st.session_state.step = "results"
+        st.rerun()
+
+
+def render_industry_step():
+    """Collect industry information before starting the questionnaire."""
+    st.header("業種について教えてください")
+    st.caption("結果の分析に活用します。該当する業種をお選びください。")
+
+    selected = st.selectbox(
+        "業種を選択",
+        options=INDUSTRY_OPTIONS,
+        index=INDUSTRY_OPTIONS.index(st.session_state.industry_choice),
+        key="industry_choice_select",
+    )
+    st.session_state.industry_choice = selected
+
+    custom_value = st.text_input(
+        "その他の業種（任意）",
+        value=st.session_state.industry_custom,
+        placeholder="例: エネルギー、エンタメ など",
+        disabled=selected != "その他（自由入力）",
+    )
+
+    if selected == "その他（自由入力）":
+        st.session_state.industry_custom = custom_value
+    else:
+        st.session_state.industry_custom = ""
+
+    cols = st.columns([1, 1, 1])
+    if cols[1].button("次へ進む", use_container_width=True):
+        if selected == "その他（自由入力）":
+            if not custom_value.strip():
+                st.warning("その他の業種を入力してください。")
+                st.stop()
+            st.session_state.industry = custom_value.strip()
+        else:
+            st.session_state.industry = selected
+        st.session_state.step = "questions"
         st.rerun()
 
 
 def render_results_step(questions: List[Dict[str, str]]):
     """Show the calculated results and submission controls."""
     answers = st.session_state.answers
+
+    incomplete = [item for item in questions if answers.get(item["id"]) is None]
+    if incomplete:
+        st.warning("未回答の質問があります。回答画面に戻ります。")
+        next_question = incomplete[0]
+        st.session_state.current_question = questions.index(next_question)
+        st.session_state.step = "questions"
+        st.rerun()
+
     with st.spinner("スコアを解析中..."):
         time.sleep(0.6)
         results = compute_results(answers)
     st.progress(1.0)
     st.header("AI Ready 結果")
+
+    if st.session_state.industry:
+        st.caption(f"回答業種: {st.session_state.industry}")
 
     col_ready, col_cat = st.columns([2, 1])
     col_ready.metric("AI Ready 指数", f"{results['ai_ready']}")
@@ -363,6 +438,7 @@ def build_row_payload(results: Dict[str, float], answers: Dict[str, int]) -> Lis
         results["ai_ready"],
         results["ai_adoption"],
         results["reduction_pct"],
+        st.session_state.industry or "",
         st.session_state.client_id,
         user_agent,
         referrer,
@@ -382,7 +458,16 @@ def render_completion_step():
 
 def reset_session():
     """Reset session state to allow a fresh start."""
-    keys_to_clear = ("answers", "current_question", "step", "submission_status", "client_id")
+    keys_to_clear = (
+        "answers",
+        "current_question",
+        "step",
+        "submission_status",
+        "client_id",
+        "industry",
+        "industry_choice",
+        "industry_custom",
+    )
     for key in keys_to_clear:
         if key in st.session_state:
             del st.session_state[key]
@@ -408,7 +493,9 @@ def main():
     ensure_session_defaults(questions)
 
     step = st.session_state.step
-    if step == "questions":
+    if step == "industry":
+        render_industry_step()
+    elif step == "questions":
         render_question_step(questions)
     elif step == "results":
         render_results_step(questions)
