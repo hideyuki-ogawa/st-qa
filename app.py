@@ -21,7 +21,7 @@ except ImportError:
 
 PAGE_TITLE = "AI Ready チェック"
 QUESTIONS_PATH = Path(__file__).parent / "data" / "quiz.md"
-SHEETS_SCOPE = ["https://www.googleapis.com/auth/spreadsheets"]
+SHEETS_SCOPE = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 CATEGORY_ALIASES = {
     "データ活用志向": "データ活用",
     "データ応用意": "データ活用",
