@@ -320,7 +320,7 @@ def render_question_step(questions: List[Dict[str, str]]):
             if None in st.session_state.answers.values():
                 st.warning("未回答の質問があります。戻ってすべて回答してください。")
                 return
-        st.session_state.step = "results"
+            st.session_state.step = "ready"
         st.rerun()
 
 
@@ -399,26 +399,52 @@ def render_results_step(questions: List[Dict[str, str]]):
         render_category_radar(category_df)
 
     st.session_state.submission_status = st.session_state.submission_status or None
-    can_submit = all(key in st.secrets for key in ("GOOGLE_SHEETS_CREDS",))
-    if not can_submit:
-        st.warning("Streamlit Secrets に Google Sheets 設定がないため送信できません。ローカル確認のみです。")
-
-    cols = st.columns([1, 1])
+    cols = st.columns([1])
     if cols[0].button("回答を編集する", use_container_width=True):
         st.session_state.step = "questions"
         st.rerun()
 
-    if cols[1].button("回答を記録", disabled=not can_submit, use_container_width=True):
-        try:
-            append_response_to_sheet(build_row_payload(results, answers))
-        except Exception as exc:  # pylint: disable=broad-except
-            st.error(f"送信に失敗しました: {exc}")
-            st.session_state.submission_status = "error"
-        else:
-            st.success("送信しました。ありがとうございました！")
-            st.session_state.submission_status = "success"
-            st.session_state.step = "completed"
+    # 記録操作は事前の完了画面で実施済み。ここでは結果表示のみ。
+
+    
+def render_ready_step(questions: List[Dict[str, str]]):
+    """Show finalization screen with a single CTA to record and view results."""
+    answers = st.session_state.answers
+    incomplete = [item for item in questions if answers.get(item["id"]) is None]
+    if incomplete:
+        st.warning("未回答の質問があります。回答画面に戻ります。")
+        next_question = incomplete[0]
+        st.session_state.current_question = questions.index(next_question)
+        st.session_state.step = "questions"
+        st.rerun()
+
+    st.header("終了しました。お疲れ様です")
+    st.caption("下のボタンで結果を記録し、集計に協力いただけます。そのまま結果も確認できます。")
+
+    can_submit = "GOOGLE_SHEETS_CREDS" in st.secrets
+    col = st.columns([1])[0]
+
+    if can_submit:
+        if col.button("結果を記録して・確認する", use_container_width=True):
+            try:
+                # 先に計算し、その行をシートへ追加
+                results = compute_results(answers)
+                append_response_to_sheet(build_row_payload(results, answers))
+            except Exception as exc:  # pylint: disable=broad-except
+                st.warning(f"記録に失敗しましたが、結果は表示します: {exc}")
+            finally:
+                st.session_state.step = "results"
+                st.rerun()
+    else:
+        st.info("記録設定が未構成のため、結果のみ表示します。")
+        if col.button("結果を確認する", use_container_width=True):
+            st.session_state.step = "results"
             st.rerun()
+
+    # 編集して戻る導線
+    if st.button("回答を編集する"):
+        st.session_state.step = "questions"
+        st.rerun()
 
 
 def build_row_payload(results: Dict[str, float], answers: Dict[str, int]) -> List:
@@ -494,6 +520,8 @@ def main():
         render_industry_step()
     elif step == "questions":
         render_question_step(questions)
+    elif step == "ready":
+        render_ready_step(questions)
     elif step == "results":
         render_results_step(questions)
     elif step == "completed":
