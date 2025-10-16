@@ -38,6 +38,56 @@ INDUSTRY_OPTIONS = [
     "行政・公共",
     "その他（自由入力）",
 ]
+PREFECTURE_OPTIONS = [
+    "北海道",
+    "青森県",
+    "岩手県",
+    "宮城県",
+    "秋田県",
+    "山形県",
+    "福島県",
+    "茨城県",
+    "栃木県",
+    "群馬県",
+    "埼玉県",
+    "千葉県",
+    "東京都",
+    "神奈川県",
+    "新潟県",
+    "富山県",
+    "石川県",
+    "福井県",
+    "山梨県",
+    "長野県",
+    "岐阜県",
+    "静岡県",
+    "愛知県",
+    "三重県",
+    "滋賀県",
+    "京都府",
+    "大阪府",
+    "兵庫県",
+    "奈良県",
+    "和歌山県",
+    "鳥取県",
+    "島根県",
+    "岡山県",
+    "広島県",
+    "山口県",
+    "徳島県",
+    "香川県",
+    "愛媛県",
+    "高知県",
+    "福岡県",
+    "佐賀県",
+    "長崎県",
+    "熊本県",
+    "大分県",
+    "宮崎県",
+    "鹿児島県",
+    "沖縄県",
+]
+DEFAULT_PREFECTURE = "京都府"
 
 
 @st.cache_data(show_spinner=False)
@@ -106,6 +156,9 @@ def ensure_session_defaults(questions: List[Dict[str, str]]) -> None:
     """Initialize session state keys used by the wizard."""
     if "client_id" not in st.session_state:
         st.session_state.client_id = str(uuid4())
+
+    if "prefecture" not in st.session_state:
+        st.session_state.prefecture = DEFAULT_PREFECTURE
 
     if "industry_choice" not in st.session_state:
         st.session_state.industry_choice = INDUSTRY_OPTIONS[0]
@@ -326,8 +379,21 @@ def render_question_step(questions: List[Dict[str, str]]):
 
 def render_industry_step():
     """Collect industry information before starting the questionnaire."""
-    st.header("業種について教えてください")
-    st.caption("結果の分析に活用します。該当する業種をお選びください。")
+    st.header("地域と業種について教えてください")
+    st.caption("結果の分析に活用します。該当する地域と業種をお選びください。")
+
+    current_prefecture = st.session_state.prefecture
+    if current_prefecture not in PREFECTURE_OPTIONS:
+        current_prefecture = DEFAULT_PREFECTURE
+        st.session_state.prefecture = current_prefecture
+
+    prefecture = st.selectbox(
+        "都道府県を選択",
+        options=PREFECTURE_OPTIONS,
+        index=PREFECTURE_OPTIONS.index(current_prefecture),
+        key="prefecture_select",
+    )
+    st.session_state.prefecture = prefecture
 
     selected = st.selectbox(
         "業種を選択",
@@ -380,8 +446,14 @@ def render_results_step(questions: List[Dict[str, str]]):
     st.progress(1.0)
     st.header("AI Ready 結果")
 
+    info_bits = []
+    prefecture_value = st.session_state.get("prefecture")
+    if prefecture_value:
+        info_bits.append(f"回答都道府県: {prefecture_value}")
     if st.session_state.industry:
-        st.caption(f"回答業種: {st.session_state.industry}")
+        info_bits.append(f"回答業種: {st.session_state.industry}")
+    if info_bits:
+        st.caption(" / ".join(info_bits))
 
     col_ready, col_cat = st.columns([2, 1])
     col_ready.metric("AI Ready 指数", f"{results['ai_ready']}")
@@ -461,6 +533,7 @@ def build_row_payload(results: Dict[str, float], answers: Dict[str, int]) -> Lis
         results["ai_ready"],
         results["ai_adoption"],
         results["reduction_pct"],
+        st.session_state.prefecture or "",
         st.session_state.industry or "",
         st.session_state.client_id,
         user_agent,
@@ -487,9 +560,11 @@ def reset_session():
         "step",
         "submission_status",
         "client_id",
+        "prefecture",
         "industry",
         "industry_choice",
         "industry_custom",
+        "prefecture_select",
     )
     for key in keys_to_clear:
         if key in st.session_state:
