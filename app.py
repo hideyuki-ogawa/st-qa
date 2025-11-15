@@ -608,7 +608,7 @@ def render_company_footer():
 
     st.markdown(
         f"""
-        <div class="only-print company-footer">
+        <div class="company-footer">
             <div class="company-name">合同会社長目 / Chomoku</div>
             <div class="company-url">https://www.chomoku.info</div>
             <div class="logo-qr-container">
