@@ -281,19 +281,32 @@ def render_category_radar(category_df: pd.DataFrame):
             r=scores,
             theta=categories,
             fill="toself",
-            line=dict(color="#1f77b4"),
-            marker=dict(size=6),
+            line=dict(color="#1f77b4", width=2),
+            marker=dict(size=8),
             name="カテゴリ平均",
         )
     )
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(range=[0, 100], showticklabels=True, tickfont=dict(size=12)),
+            radialaxis=dict(
+                range=[0, 100],
+                showticklabels=True,
+                tickfont=dict(size=18),  # 1.5倍に拡大 (12 * 1.5 = 18)
+            ),
+            angularaxis=dict(
+                tickfont=dict(size=18),  # カテゴリ名のフォントサイズも1.5倍に
+            ),
         ),
         showlegend=False,
-        margin=dict(t=20, b=20, l=40, r=40),
+        margin=dict(t=40, b=40, l=60, r=60),  # 余白を広めに
+        width=500,  # チャート幅を制限 (元の2/3程度)
+        height=500,  # 高さも同様に調整
     )
-    st.plotly_chart(fig, use_container_width=True)
+
+    # チャートを中央寄せで表示
+    _, col2, _ = st.columns([1, 2, 1])
+    with col2:
+        st.plotly_chart(fig, use_container_width=False)
 
 
 def format_timestamp() -> str:
@@ -470,12 +483,6 @@ def render_results_step(questions: List[Dict[str, str]]):
         st.caption("各カテゴリの平均スコアをもとにレーダーチャートを表示しています。")
         render_category_radar(category_df)
 
-    st.session_state.submission_status = st.session_state.submission_status or None
-    cols = st.columns([1])
-    if cols[0].button("回答を編集する", use_container_width=True):
-        st.session_state.step = "questions"
-        st.rerun()
-
     # 記録操作は事前の完了画面で実施済み。ここでは結果表示のみ。
 
     
@@ -577,12 +584,51 @@ def reset_session():
     st.rerun()
 
 
+def inject_print_styles():
+    """Inject CSS for print-friendly results page."""
+    st.markdown(
+        """
+        <style>
+        /* 印刷時にStreamlitのヘッダー・フッター・ナビゲーションを非表示 */
+        @media print {
+            header, footer, .stApp > header, [data-testid="stHeader"],
+            [data-testid="stToolbar"], [data-testid="stDecoration"],
+            [data-testid="stStatusWidget"], .stDeployButton {
+                display: none !important;
+            }
+
+            /* 印刷時に余白を最適化 */
+            .main .block-container {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+                max-width: 100% !important;
+            }
+
+            /* ページ余白の調整 */
+            @page {
+                margin: 1cm;
+            }
+        }
+
+        /* 結果ページの余白を整理 */
+        .main .block-container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main():
     st.set_page_config(
         page_title=PAGE_TITLE,
         layout="centered",
         initial_sidebar_state="collapsed",
     )
+
+    inject_print_styles()
 
     st.title(PAGE_TITLE)
     st.caption("AI Ready 度合いを10問のスライダーで診断し、導入度と想定削減率を把握できます。")
