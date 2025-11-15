@@ -471,12 +471,11 @@ def render_results_step(questions: List[Dict[str, str]]):
     if info_bits:
         st.caption(" / ".join(info_bits))
 
-    col_ready, col_cat = st.columns([2, 1])
-    col_ready.metric("AI Ready 指数", f"{results['ai_ready']}")
-    col_ready.caption(results["category_label"])
-    col_cat.metric("導入度", f"{results['ai_adoption']} %")
-
-    st.metric("想定作業時間削減率", f"{results['reduction_pct']} %")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("AI Ready 指数", f"{results['ai_ready']}")
+    col1.caption(results["category_label"])
+    col2.metric("導入度", f"{results['ai_adoption']} %")
+    col3.metric("想定作業時間削減率", f"{results['reduction_pct']} %")
     st.write("次の一歩:")
     st.info(suggestion_from_matrix(results["ai_ready"], results["ai_adoption"]))
 
