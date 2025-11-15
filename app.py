@@ -298,15 +298,15 @@ def render_category_radar(category_df: pd.DataFrame):
             ),
         ),
         showlegend=False,
-        margin=dict(t=40, b=40, l=60, r=60),  # 余白を広めに
-        width=500,  # チャート幅を制限 (元の2/3程度)
-        height=500,  # 高さも同様に調整
+        margin=dict(t=10, b=10, l=30, r=30),  # 余白を縮小
+        width=450,  # チャート幅をさらに縮小
+        height=450,  # 高さも同様に調整
     )
 
     # チャートを中央寄せで表示
     _, col2, _ = st.columns([1, 2, 1])
     with col2:
-        st.plotly_chart(fig, use_container_width=False)
+        st.plotly_chart(fig, use_container_width=False, config={'displayModeBar': False})
 
 
 def format_timestamp() -> str:
@@ -658,14 +658,20 @@ def inject_print_styles():
 
         /* 結果ページの余白を整理 */
         .main .block-container {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
+            padding-top: 1.5rem;
+            padding-bottom: 1rem;
+        }
+
+        /* セクション間の余白を縮小 */
+        .stMarkdown h2, .stMarkdown h3 {
+            margin-top: 1rem !important;
+            margin-bottom: 0.5rem !important;
         }
 
         /* ロゴ・QRコードセクションのスタイル */
         .company-footer {
-            margin-top: 3rem;
-            padding-top: 2rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
             border-top: 1px solid #e0e0e0;
             text-align: center;
         }
@@ -674,12 +680,12 @@ def inject_print_styles():
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 3rem;
-            margin: 2rem 0;
+            gap: 2rem;
+            margin: 1rem 0;
         }
 
         .company-footer img {
-            max-width: 150px;
+            max-width: 120px;
             height: auto;
         }
 
