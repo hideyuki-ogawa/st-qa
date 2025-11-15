@@ -211,7 +211,7 @@ def compute_results(answers: Dict[str, int]) -> Dict[str, float]:
 
 
 def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
-    """Return a short suggestion based on the 3x3 matrix."""
+    """Return a detailed suggestion based on the 3x3 matrix."""
     ready_band = "準備"
     if ai_ready >= 70:
         ready_band = "拡張"
@@ -224,19 +224,84 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
     elif ai_adoption >= 40:
         adoption_band = "一部"
 
+    consultation_note = "\n\n---\n\n💡 **展示会限定特典**: 訪問してのプライベート相談を無料で実施させていただきます。"
+
     matrix = {
-        ("準備", "未導入"): "基盤整備→小規模試行",
-        ("準備", "一部"): "成功事例の共有→法人プランへ",
-        ("準備", "定着"): "ガバナンス整備（セキュリティ/ルール）",
-        ("試行", "未導入"): "日報/報告から導入",
-        ("試行", "一部"): "テンプレ整備と効果測定",
-        ("試行", "定着"): "標準化と定期研修",
-        ("拡張", "未導入"): "高効果部門に一気に導入",
-        ("拡張", "一部"): "全社最適化とROI管理",
-        ("拡張", "定着"): "自動化/高度応用へ",
+        ("準備", "未導入"): (
+            "**まずは基盤整備から始めましょう**\n\n"
+            "現在、AI活用の準備段階にあります。以下のステップをお勧めします：\n"
+            "1. 社内のデータ整理とデジタル化を進める\n"
+            "2. ChatGPTなどの無料ツールで小規模な試行を開始\n"
+            "3. 日報作成や議事録作成など、効果が出やすい業務から試してみる"
+            + consultation_note
+        ),
+        ("準備", "一部"): (
+            "**成功事例を広げる時期です**\n\n"
+            "一部でAIを活用できています。次のステップへ進みましょう：\n"
+            "1. 現在の成功事例を社内で共有し、横展開を図る\n"
+            "2. ChatGPT Teamなど法人プランの導入を検討\n"
+            "3. 複数部署での活用を促進し、ノウハウを蓄積する"
+            + consultation_note
+        ),
+        ("準備", "定着"): (
+            "**ガバナンス体制の構築が必要です**\n\n"
+            "広く活用されていますが、管理体制の強化が課題です：\n"
+            "1. AI利用ガイドライン・セキュリティポリシーの策定\n"
+            "2. 情報漏洩対策とコンプライアンス体制の整備\n"
+            "3. 全社的なAI活用ルールの明文化と周知"
+            + consultation_note
+        ),
+        ("試行", "未導入"): (
+            "**すぐに導入を始めましょう**\n\n"
+            "準備は整っています。具体的な導入をお勧めします：\n"
+            "1. 日報・報告書作成からAI活用を開始\n"
+            "2. 週1回のAI活用報告会を設定し、成果を共有\n"
+            "3. 3ヶ月以内に全社員がAIツールに触れる機会を作る"
+            + consultation_note
+        ),
+        ("試行", "一部"): (
+            "**効果測定と横展開を進めましょう**\n\n"
+            "試行段階で一部導入済みです。次のアクションを：\n"
+            "1. 活用テンプレート（プロンプト集）を整備・共有\n"
+            "2. 作業時間削減などの効果を定量的に測定\n"
+            "3. 成功事例を他部署に展開し、全社活用を目指す"
+            + consultation_note
+        ),
+        ("試行", "定着"): (
+            "**標準化と教育体制の確立を**\n\n"
+            "多くの社員が活用しています。次のステップへ：\n"
+            "1. ベストプラクティスを標準業務フローに組み込む\n"
+            "2. 新入社員向けAI研修プログラムを整備\n"
+            "3. 定期的なスキルアップ研修を実施し、活用レベルを底上げ"
+            + consultation_note
+        ),
+        ("拡張", "未導入"): (
+            "**今すぐ本格導入を開始すべきです**\n\n"
+            "環境は整っています。積極的な導入をお勧めします：\n"
+            "1. 効果が見込める重点部門から一気に導入\n"
+            "2. 経営層主導でAI活用推進プロジェクトを立ち上げ\n"
+            "3. 3ヶ月で全社展開を目指し、スピード感を持って進める"
+            + consultation_note
+        ),
+        ("拡張", "一部"): (
+            "**全社最適化とROI管理の段階です**\n\n"
+            "高い準備度で一部導入済み。全社展開を加速しましょう：\n"
+            "1. AI活用による業務改善効果（ROI）を定量評価\n"
+            "2. 部門間連携を強化し、全社最適化を図る\n"
+            "3. AI専任担当者・推進チームを設置して組織的に推進"
+            + consultation_note
+        ),
+        ("拡張", "定着"): (
+            "**自動化と高度応用へステップアップ**\n\n"
+            "AI活用が定着しています。さらなる進化を：\n"
+            "1. API連携やワークフロー自動化で生産性をさらに向上\n"
+            "2. 独自AIモデルの開発や高度なカスタマイズを検討\n"
+            "3. AI活用の成功事例を外部発信し、ブランド価値を向上"
+            + consultation_note
+        ),
     }
 
-    return matrix.get((ready_band, adoption_band), "次の一歩を検討しましょう。")
+    return matrix.get((ready_band, adoption_band), "AIの活用状況に応じた次のステップを検討しましょう。")
 
 
 def build_category_scores(questions: List[Dict[str, str]], answers: Dict[str, int]) -> pd.DataFrame:
@@ -281,19 +346,29 @@ def render_category_radar(category_df: pd.DataFrame):
             r=scores,
             theta=categories,
             fill="toself",
-            line=dict(color="#1f77b4"),
-            marker=dict(size=6),
+            line=dict(color="#1f77b4", width=2),
+            marker=dict(size=8),
             name="カテゴリ平均",
         )
     )
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(range=[0, 100], showticklabels=True, tickfont=dict(size=12)),
+            radialaxis=dict(
+                range=[0, 100],
+                showticklabels=True,
+                tickfont=dict(size=18),  # 1.5倍に拡大 (12 * 1.5 = 18)
+            ),
+            angularaxis=dict(
+                tickfont=dict(size=18),  # カテゴリ名のフォントサイズも1.5倍に
+            ),
         ),
         showlegend=False,
-        margin=dict(t=20, b=20, l=40, r=40),
+        margin=dict(t=40, b=40, l=80, r=80),  # 余白を広げてラベルが切れないように
+        height=330,  # 高さを2/3に縮小 (500 × 2/3 ≈ 330)
     )
-    st.plotly_chart(fig, use_container_width=True)
+
+    # チャートを全幅で表示
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 
 def format_timestamp() -> str:
@@ -339,8 +414,11 @@ def render_question_step(questions: List[Dict[str, str]]):
     total = len(questions)
     question = questions[idx]
 
-    st.progress(idx / total)
-    st.caption(f"質問 {idx + 1} / {total}")
+    # 回答済みの質問数を計算してプログレスバーに反映
+    answered_count = sum(1 for v in st.session_state.answers.values() if v is not None)
+    progress_value = answered_count / total if total > 0 else 0
+    st.progress(progress_value)
+    st.caption(f"質問 {idx + 1} / {total} (回答済み: {answered_count})")
     st.subheader(question["prompt"])
 
     prev_value = st.session_state.answers.get(question["id"])
@@ -455,26 +533,25 @@ def render_results_step(questions: List[Dict[str, str]]):
     if info_bits:
         st.caption(" / ".join(info_bits))
 
-    col_ready, col_cat = st.columns([2, 1])
-    col_ready.metric("AI Ready 指数", f"{results['ai_ready']}")
-    col_ready.caption(results["category_label"])
-    col_cat.metric("導入度", f"{results['ai_adoption']} %")
-
-    st.metric("想定作業時間削減率", f"{results['reduction_pct']} %")
-    st.write("次の一歩:")
-    st.info(suggestion_from_matrix(results["ai_ready"], results["ai_adoption"]))
+    col1, col2, col3 = st.columns(3)
+    col1.metric("AI Ready 指数", f"{results['ai_ready']}")
+    col1.caption(results["category_label"])
+    col2.metric("導入度", f"{results['ai_adoption']} %")
+    col3.metric("想定作業時間削減率", f"{results['reduction_pct']} %")
 
     category_df = build_category_scores(questions, answers)
     if not category_df.empty:
+        st.markdown("---")
         st.subheader("カテゴリ別スコア")
         st.caption("各カテゴリの平均スコアをもとにレーダーチャートを表示しています。")
         render_category_radar(category_df)
 
-    st.session_state.submission_status = st.session_state.submission_status or None
-    cols = st.columns([1])
-    if cols[0].button("回答を編集する", use_container_width=True):
-        st.session_state.step = "questions"
-        st.rerun()
+    st.markdown("---")
+    st.subheader("📋 御社へのおすすめアクション")
+    st.markdown(suggestion_from_matrix(int(results["ai_ready"]), int(results["ai_adoption"])))
+
+    # 印刷専用: 社名・ロゴ・QRコード配置
+    render_company_footer()
 
     # 記録操作は事前の完了画面で実施済み。ここでは結果表示のみ。
 
@@ -525,7 +602,7 @@ def build_row_payload(results: Dict[str, float], answers: Dict[str, int]) -> Lis
     ordered_answers = [answers[f"q{idx}"] for idx in range(1, 11)]
 
     user_agent = st.session_state.get("user_agent", "streamlit-client")
-    referrer = st.experimental_get_query_params().get("ref", ["direct"])[0]
+    referrer = st.query_params.get("ref", "direct")
 
     return [
         timestamp,
@@ -577,12 +654,130 @@ def reset_session():
     st.rerun()
 
 
+def render_company_footer():
+    """Render company logo and QR code footer (print-only)."""
+    import base64
+    from pathlib import Path
+
+    # 画像をBase64エンコード
+    logo_path = Path(__file__).parent / "img" / "chomoku-logo.png"
+    qr_path = Path(__file__).parent / "img" / "chomoku-qr.png"
+
+    try:
+        logo_base64 = base64.b64encode(logo_path.read_bytes()).decode()
+        qr_base64 = base64.b64encode(qr_path.read_bytes()).decode()
+    except Exception:  # pylint: disable=broad-except
+        # 画像が見つからない場合はスキップ
+        return
+
+    st.markdown(
+        f"""
+        <div class="company-footer">
+            <div class="company-name">合同会社長目 / Chomoku</div>
+            <div class="company-url">https://www.chomoku.info</div>
+            <div class="logo-qr-container">
+                <img src="data:image/png;base64,{logo_base64}" alt="Chomoku Logo">
+                <img src="data:image/png;base64,{qr_base64}" alt="QR Code">
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def inject_print_styles():
+    """Inject CSS for print-friendly results page."""
+    st.markdown(
+        """
+        <style>
+        /* 印刷専用要素: 通常は非表示、印刷時のみ表示 */
+        .only-print {
+            display: none !important;
+        }
+
+        /* 印刷時にStreamlitのヘッダー・フッター・ナビゲーションを非表示 */
+        @media print {
+            header, footer, .stApp > header, [data-testid="stHeader"],
+            [data-testid="stToolbar"], [data-testid="stDecoration"],
+            [data-testid="stStatusWidget"], .stDeployButton {
+                display: none !important;
+            }
+
+            /* 印刷時に余白を最適化 */
+            .main .block-container {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+                max-width: 100% !important;
+            }
+
+            /* ページ余白の調整 */
+            @page {
+                margin: 1cm;
+            }
+
+            /* 印刷専用要素を表示 */
+            .only-print {
+                display: block !important;
+            }
+        }
+
+        /* 結果ページの余白を整理 */
+        .main .block-container {
+            padding-top: 1.5rem;
+            padding-bottom: 1rem;
+        }
+
+        /* セクション間の余白を縮小 */
+        .stMarkdown h2, .stMarkdown h3 {
+            margin-top: 1rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* ロゴ・QRコードセクションのスタイル */
+        .company-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .company-footer .logo-qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .company-footer img {
+            max-width: 120px;
+            height: auto;
+        }
+
+        .company-footer .company-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .company-footer .company-url {
+            font-size: 1rem;
+            color: #0066cc;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main():
     st.set_page_config(
         page_title=PAGE_TITLE,
         layout="centered",
         initial_sidebar_state="collapsed",
     )
+
+    inject_print_styles()
 
     st.title(PAGE_TITLE)
     st.caption("AI Ready 度合いを10問のスライダーで診断し、導入度と想定削減率を把握できます。")
