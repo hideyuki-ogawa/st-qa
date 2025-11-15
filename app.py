@@ -363,15 +363,12 @@ def render_category_radar(category_df: pd.DataFrame):
             ),
         ),
         showlegend=False,
-        margin=dict(t=10, b=10, l=30, r=30),  # 余白を縮小
-        width=450,  # チャート幅をさらに縮小
-        height=450,  # 高さも同様に調整
+        margin=dict(t=40, b=40, l=80, r=80),  # 余白を広げてラベルが切れないように
+        height=500,  # 高さを調整
     )
 
-    # チャートを中央寄せで表示
-    _, col2, _ = st.columns([1, 2, 1])
-    with col2:
-        st.plotly_chart(fig, use_container_width=False, config={'displayModeBar': False})
+    # チャートを全幅で表示
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 
 def format_timestamp() -> str:
@@ -542,15 +539,16 @@ def render_results_step(questions: List[Dict[str, str]]):
     col2.metric("導入度", f"{results['ai_adoption']} %")
     col3.metric("想定作業時間削減率", f"{results['reduction_pct']} %")
 
-    st.markdown("---")
-    st.subheader("📋 あなたへのお勧めアクション")
-    st.markdown(suggestion_from_matrix(int(results["ai_ready"]), int(results["ai_adoption"])))
-
     category_df = build_category_scores(questions, answers)
     if not category_df.empty:
+        st.markdown("---")
         st.subheader("カテゴリ別スコア")
         st.caption("各カテゴリの平均スコアをもとにレーダーチャートを表示しています。")
         render_category_radar(category_df)
+
+    st.markdown("---")
+    st.subheader("📋 あなたへのお勧めアクション")
+    st.markdown(suggestion_from_matrix(int(results["ai_ready"]), int(results["ai_adoption"])))
 
     # 印刷専用: 社名・ロゴ・QRコード配置
     render_company_footer()
@@ -604,7 +602,7 @@ def build_row_payload(results: Dict[str, float], answers: Dict[str, int]) -> Lis
     ordered_answers = [answers[f"q{idx}"] for idx in range(1, 11)]
 
     user_agent = st.session_state.get("user_agent", "streamlit-client")
-    referrer = st.experimental_get_query_params().get("ref", ["direct"])[0]
+    referrer = st.query_params.get("ref", "direct")
 
     return [
         timestamp,
