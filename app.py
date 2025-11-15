@@ -352,8 +352,11 @@ def render_question_step(questions: List[Dict[str, str]]):
     total = len(questions)
     question = questions[idx]
 
-    st.progress(idx / total)
-    st.caption(f"質問 {idx + 1} / {total}")
+    # 回答済みの質問数を計算してプログレスバーに反映
+    answered_count = sum(1 for v in st.session_state.answers.values() if v is not None)
+    progress_value = answered_count / total if total > 0 else 0
+    st.progress(progress_value)
+    st.caption(f"質問 {idx + 1} / {total} (回答済み: {answered_count})")
     st.subheader(question["prompt"])
 
     prev_value = st.session_state.answers.get(question["id"])
