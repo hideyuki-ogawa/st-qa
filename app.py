@@ -364,7 +364,7 @@ def render_category_radar(category_df: pd.DataFrame):
         ),
         showlegend=False,
         margin=dict(t=40, b=40, l=80, r=80),  # 余白を広げてラベルが切れないように
-        height=500,  # 高さを調整
+        height=330,  # 高さを2/3に縮小 (500 × 2/3 ≈ 330)
     )
 
     # チャートを全幅で表示
