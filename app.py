@@ -224,6 +224,8 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
     elif ai_adoption >= 40:
         adoption_band = "一部"
 
+    consultation_note = "\n\n---\n\n💡 **展示会限定特典**: 訪問してのプライベート相談を無料で実施させていただきます。"
+
     matrix = {
         ("準備", "未導入"): (
             "**まずは基盤整備から始めましょう**\n\n"
@@ -231,6 +233,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. 社内のデータ整理とデジタル化を進める\n"
             "2. ChatGPTなどの無料ツールで小規模な試行を開始\n"
             "3. 日報作成や議事録作成など、効果が出やすい業務から試してみる"
+            + consultation_note
         ),
         ("準備", "一部"): (
             "**成功事例を広げる時期です**\n\n"
@@ -238,6 +241,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. 現在の成功事例を社内で共有し、横展開を図る\n"
             "2. ChatGPT Teamなど法人プランの導入を検討\n"
             "3. 複数部署での活用を促進し、ノウハウを蓄積する"
+            + consultation_note
         ),
         ("準備", "定着"): (
             "**ガバナンス体制の構築が必要です**\n\n"
@@ -245,6 +249,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. AI利用ガイドライン・セキュリティポリシーの策定\n"
             "2. 情報漏洩対策とコンプライアンス体制の整備\n"
             "3. 全社的なAI活用ルールの明文化と周知"
+            + consultation_note
         ),
         ("試行", "未導入"): (
             "**すぐに導入を始めましょう**\n\n"
@@ -252,6 +257,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. 日報・報告書作成からAI活用を開始\n"
             "2. 週1回のAI活用報告会を設定し、成果を共有\n"
             "3. 3ヶ月以内に全社員がAIツールに触れる機会を作る"
+            + consultation_note
         ),
         ("試行", "一部"): (
             "**効果測定と横展開を進めましょう**\n\n"
@@ -259,6 +265,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. 活用テンプレート（プロンプト集）を整備・共有\n"
             "2. 作業時間削減などの効果を定量的に測定\n"
             "3. 成功事例を他部署に展開し、全社活用を目指す"
+            + consultation_note
         ),
         ("試行", "定着"): (
             "**標準化と教育体制の確立を**\n\n"
@@ -266,6 +273,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. ベストプラクティスを標準業務フローに組み込む\n"
             "2. 新入社員向けAI研修プログラムを整備\n"
             "3. 定期的なスキルアップ研修を実施し、活用レベルを底上げ"
+            + consultation_note
         ),
         ("拡張", "未導入"): (
             "**今すぐ本格導入を開始すべきです**\n\n"
@@ -273,6 +281,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. 効果が見込める重点部門から一気に導入\n"
             "2. 経営層主導でAI活用推進プロジェクトを立ち上げ\n"
             "3. 3ヶ月で全社展開を目指し、スピード感を持って進める"
+            + consultation_note
         ),
         ("拡張", "一部"): (
             "**全社最適化とROI管理の段階です**\n\n"
@@ -280,6 +289,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. AI活用による業務改善効果（ROI）を定量評価\n"
             "2. 部門間連携を強化し、全社最適化を図る\n"
             "3. AI専任担当者・推進チームを設置して組織的に推進"
+            + consultation_note
         ),
         ("拡張", "定着"): (
             "**自動化と高度応用へステップアップ**\n\n"
@@ -287,6 +297,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
             "1. API連携やワークフロー自動化で生産性をさらに向上\n"
             "2. 独自AIモデルの開発や高度なカスタマイズを検討\n"
             "3. AI活用の成功事例を外部発信し、ブランド価値を向上"
+            + consultation_note
         ),
     }
 
