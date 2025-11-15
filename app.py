@@ -547,7 +547,7 @@ def render_results_step(questions: List[Dict[str, str]]):
         render_category_radar(category_df)
 
     st.markdown("---")
-    st.subheader("📋 あなたへのお勧めアクション")
+    st.subheader("📋 御社へのおすすめアクション")
     st.markdown(suggestion_from_matrix(int(results["ai_ready"]), int(results["ai_adoption"])))
 
     # 印刷専用: 社名・ロゴ・QRコード配置
