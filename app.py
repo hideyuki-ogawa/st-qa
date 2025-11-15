@@ -486,6 +486,9 @@ def render_results_step(questions: List[Dict[str, str]]):
         st.caption("各カテゴリの平均スコアをもとにレーダーチャートを表示しています。")
         render_category_radar(category_df)
 
+    # 印刷専用: 社名・ロゴ・QRコード配置
+    render_company_footer()
+
     # 記録操作は事前の完了画面で実施済み。ここでは結果表示のみ。
 
     
@@ -587,11 +590,47 @@ def reset_session():
     st.rerun()
 
 
+def render_company_footer():
+    """Render company logo and QR code footer (print-only)."""
+    import base64
+    from pathlib import Path
+
+    # 画像をBase64エンコード
+    logo_path = Path(__file__).parent / "img" / "chomoku-logo.png"
+    qr_path = Path(__file__).parent / "img" / "chomoku-qr.png"
+
+    try:
+        logo_base64 = base64.b64encode(logo_path.read_bytes()).decode()
+        qr_base64 = base64.b64encode(qr_path.read_bytes()).decode()
+    except Exception:  # pylint: disable=broad-except
+        # 画像が見つからない場合はスキップ
+        return
+
+    st.markdown(
+        f"""
+        <div class="only-print company-footer">
+            <div class="company-name">合同会社長目 / Chomoku</div>
+            <div class="company-url">https://www.chomoku.info</div>
+            <div class="logo-qr-container">
+                <img src="data:image/png;base64,{logo_base64}" alt="Chomoku Logo">
+                <img src="data:image/png;base64,{qr_base64}" alt="QR Code">
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def inject_print_styles():
     """Inject CSS for print-friendly results page."""
     st.markdown(
         """
         <style>
+        /* 印刷専用要素: 通常は非表示、印刷時のみ表示 */
+        .only-print {
+            display: none !important;
+        }
+
         /* 印刷時にStreamlitのヘッダー・フッター・ナビゲーションを非表示 */
         @media print {
             header, footer, .stApp > header, [data-testid="stHeader"],
@@ -611,12 +650,49 @@ def inject_print_styles():
             @page {
                 margin: 1cm;
             }
+
+            /* 印刷専用要素を表示 */
+            .only-print {
+                display: block !important;
+            }
         }
 
         /* 結果ページの余白を整理 */
         .main .block-container {
             padding-top: 2rem;
             padding-bottom: 2rem;
+        }
+
+        /* ロゴ・QRコードセクションのスタイル */
+        .company-footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .company-footer .logo-qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            margin: 2rem 0;
+        }
+
+        .company-footer img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .company-footer .company-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .company-footer .company-url {
+            font-size: 1rem;
+            color: #0066cc;
         }
         </style>
         """,
