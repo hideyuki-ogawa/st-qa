@@ -224,7 +224,7 @@ def suggestion_from_matrix(ai_ready: int, ai_adoption: int) -> str:
     elif ai_adoption >= 40:
         adoption_band = "一部"
 
-    consultation_note = "\n\n---\n\n💡 **展示会限定特典**: 訪問してのプライベート相談を無料で実施させていただきます。"
+    consultation_note = "\n\n---\n\n💡 **展示会限定特典**: 訪問してのプライベート相談を無料で実施させていただきます。（内容はあくまで参考値です）"
 
     matrix = {
         ("準備", "未導入"): (
